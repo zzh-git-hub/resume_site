@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 个人简历站 - Personal Resume Website
 
 一个基于 Python Flask 的现代化个人简历网站，具有营销风格的上下翻页动画、打字机效果和完整的管理后台。
@@ -119,3 +120,7 @@ resume_site/
 ## 📝 License
 
 MIT License
+=======
+# resume_site
+一个基于 Python Flask 的现代化个人简历网站，具有营销风格的上下翻页动画、打字机效果和完整的管理后台。
+>>>>>>> cf2fec26d454a02ac03ccc5300362e3f512eccbe
