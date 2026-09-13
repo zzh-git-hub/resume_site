@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.pyo
+instance/
+*.db
+fix_*.py
+generate_*.py
+gen/
+test_*.txt

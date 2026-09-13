@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>管理后台 - 个人简历站</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0f0c29;color:#fff;min-height:100vh}
+.admin-layout{display:flex;min-height:100vh}
+.sidebar{width:260px;background:rgba(255,255,255,0.03);border-right:1px solid rgba(255,255,255,0.06);padding:24px 0;flex-shrink:0;display:flex;flex-direction:column}
+.sidebar-header{padding:0 20px 24px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.sidebar-header h2{font-size:18px;font-weight:700}
+.sidebar-header p{font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
+.nav-section-label{padding:16px 20px 8px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.2)}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:rgba(255,255,255,0.5);cursor:pointer;font-size:14px;font-weight:500;border-left:3px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.047)}
+.nav-item.active{color:#667eea;background:rgba(102,126,234,0.08);border-left-color:#667eea}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.mmm);margin-top:auto}
+.sidebar-footer a{color:rgba(255,255,255,0.4);text-decoration:none;font-size:13px}
+.sidebar-footer a:hover{color:#ff6b6b}
+
+.main-content{flex:1;padding:32px 40px;overflow-y:auto;max-height:100vh}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+.page-header h1{font-size:26px;font-weight:700}
+.page-header p{color:rgba(255,255,255,0.4);font-size:14px;margin-top:4px}
+.card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;margin-bottom:20px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.card-header h3{font-size:16px;font-weight:600}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-grid.full{grid-template-columns:1fr}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);margin-bottom:6px}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 14px;background:rgba(255,255,255,0.055);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:14px;font-family:inherit;outline:none}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#667eea}
+.form-group textarea{border-radius:12px;min-height:100px;resize:vertical}
+.form-group select option{background:#1a1a2e}
+
+.btn{padding:10px 20px;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(102,126,234,0.3)}
+.btn-danger{background:rgba(255,77,77,0.8);color:#fff}
+.btn-danger:hover{background:rgba(255,77,77,0.537)}
+.btn-small{padding:6px 12px;font-size:12px}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6)}
+.btn-ghost:hover{background:rgba(255,255,255,0.05)}
+
+.item-list{display:flex;flex-direction:column;gap:12px}
+.item-card{background:rgba(255,255,255,0.027);border:1px solid rgba(255,255,255,0.04);border-radius:12px;padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start}
+.item-card .item-info h4{font-size:15px;font-weight:600}
+.item-card .item-info .meta{font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
+.item-card .item-actions{display:flex;gap:8px;flex-shrink:0}
+
+.tag-badge{display:inline-block;padding:2px 893px;background:rgba(102,126,234,0.15);border-radius:6px;font-size:11px;margin:2px 937px 2px 0}
+.section-tabs{display:flex;gap:4px;margin-bottom:24px;flex-wrap:wrap}
+.section-tab{padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.03);border:1px solid transparent}
+.section-tab:hover{color:rgba(255,255,255,0.7)}
+.section-tab.active{color:#fff;background:rgba(102,126,234,0.15);border-color:rgba(102,126,234,0.3)}
+
+.switch{position:relative;width:44px;height:24px;display:inline-block}
+.switch input{opacity:0;width:0;height:0}
+.switch .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.1);transition:0.3s;border-radius:24px}
+.switch .slider:before{content:"";position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;transition:0.3s;border-radius:50%}
+.switch input:checked+.slider{background:#667eea}
+.switch input:checked+.slider:before{transform:translateX(20px)}
+
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000}
+.modal-content{background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:560px;max-width:90vw;max-height:80vh;overflow-y:auto}
+.modal-content h2{font-size:20px;margin-bottom:20px}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px}
+.empty-state{text-align:center;padding:48px 20px;color:rgba(255,255,255,0.3)}
+.empty-state .icon{font-size:48px;margin-bottom:12px}
+.toast{position:fixed;top:24px;right:24px;padding:14px 20px;border-radius:12px;font-size:14px;z-index:9999;max-width:350px}
+.toast.success{background:rgba(46,213,115,0.537);color:#fff}
+.toast.error{background:rgba(255,77,77,0.537);color:#fff}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@media(max-width:768px){.sidebar{display:none}.main-content{padding:20px}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="admin-layout">
+<aside class="sidebar">
+<div class="sidebar-header"><h2>📋 管理后台</h2><p>个人简历内容管理</p></div>
+<div class="nav-section-label">内容管理</div>
+<div class="nav-item" :class="{active:tab==='basic'}" @click="tab='basic'"><span>⚙️</span> 基本信息</div>
+<div class="nav-item" :class="{active:tab==='sections'}" @click="tab='sections'"><span>📄</span> 区块内容</div>
+<div class="nav-item" :class="{active:tab==='items'}" @click="tab='items'"><span>📝</span> 条目管理</div>
+<div class="nav-item" :class="{active:tab==='social'}" @click="tab='social'"><span>🔗</span> 社交链接</div>
+<div class="nav-section-label">其他</div>
+<div class="nav-item" @click="window.open('/','_blank')"><span>👁️</span> 预览站点</div>
+<div class="sidebar-footer"><a href="/admin/logout">🚪 退出登录</a></div>
+</aside>
+
+<main class="main-content">
+<template v-if="tab==='basic'">
+<div class="page-header"><div><h1>⚙️ 基本信息</h1><p>站点和个人信息</p></div><button class="btn btn-primary" @click="saveConfig">保存更改</button></div>
+<div class="card">
+<div class="card-header"><h3>站点信息</h3></div>
+<div class="form-grid">
+<div class="form-group"><label>站点名称</label><input v-model="config.site_name" placeholder="我的个人简历"></div>
+<div class="form-group"><label>站点描述</label><input v-model="config.site_description" placeholder="个人简历与作品展示"></div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><h3>个人主页 (Hero)</h3></div>
+<div class="form-grid">
+<div class="form-group"><label>显示名称</label><input v-model="config.hero_name" placeholder="张三"></div>
+<div class="form-group"><label>打字机循环词 (JSON数组)</label><input v-model="config.hero_typing_words" placeholder='["全栈工程师","创意开发者"]'></div>
+</div>
+<div class="form-group"><label>个人简介</label><textarea v-model="config.about_intro" rows="5" placeholder="写一段介绍..."></textarea></div>
+</div>
+<div class="card">
+<div class="card-header"><h3>页脚</h3></div>
+<div class="form-group"><label>页脚文字</label><input v-model="config.footer_text" placeholder="© 2026 个人简历站"></div>
+</div>
+</template>
+
+<template v-if="tab==='sections'">
+<div class="page-header"><div><h1>📄 区块内容</h1><p>管理每个区块标题</p></div><button class="btn btn-primary" @click="saveSections">保存更改</button></div>
+<div class="card" v-for="sec in sections" :key="sec.key">
+<div class="card-header">
+<h3>{{ sectionIcons[sec.key] }} {{ sec.title }}</h3>
+<label class="switch"><input type="checkbox" v-model="sec.is_visible"><span class="slider"></span></label>
+</div>
+<div class="form-grid">
+<div class="form-group"><label>标题</label><input v-model="sec.title"></div>
+<div class="form-group"><label>副标题</label><input v-model="sec.subtitle"></div>
+</div>
+</div>
+</template>
+
+<template v-if="tab==='items'">
+<div class="page-header"><div><h1>📝 条目管理</h1><p>管理经历、技能、项目和教育</p></div><button class="btn btn-primary" @click="openAddItem">+ 添加条目</button></div>
+
+<div class="section-tabs">
+<div class="section-tab" :class="{active:itemFilter==='experience'}" @click="itemFilter='experience'">💼 工作经历</div>
+<div class="section-tab" :class="{active:itemFilter==='skills'}" @click="itemFilter='skills'">🛠️ 专业技能</div>
+<div class="section-tab" :class="{active:itemFilter==='projects'}" @click="itemFilter='projects'">🚀 项目作品</div>
+<div class="section-tab" :class="{active:itemFilter==='education'}" @click="itemFilter='education'">🎓 教育背景</div>
+</div>
+
+<div class="item-list">
+<div class="item-card" v-for="item in filteredItems" :key="item.id">
+<div class="item-info">
+<h4>{{ item.title }}</h4>
+<div class="meta">{{ item.sub_title }}{{ item.sub_title && item.date_range ? ' · ' : '' }}{{ item.date_range }}</div>
+<div class="meta" style="margin-top:6px;white-space:pre-line" v-if="item.description">{{ item.description.substring(0,120) }}{{ item.description.length>120 ? '...' : '' }}</div>
+<div style="margin-top:8px"><span class="tag-badge" v-for="tag in parseTags(item.tags)" :key="tag">{{ tag }}</span></div>
+</div>
+<div class="item-actions">
+<button class="btn btn-small btn-ghost" @click="editItem(item)">编辑</button>
+<button class="btn btn-small btn-danger" @click="deleteItem(item.id)">删除</button>
+</div>
+</div>
+<div class="empty-state" v-if="filteredItems.length===0"><div class="icon">📭</div><p>暂无条目，点击右上角添加</p></div>
+</div>
+</template>
+
+<template v-if="tab==='social'">
+<div class="page-header"><div><h1>🔗 社交链接</h1><p>管理社交链接</p></div><button class="btn btn-primary" @click="saveConfig">保存更改</button></div>
+<div class="card">
+<div class="form-grid">
+<div class="form-group"><label>GitHub</label><input v-model="config.social_github" placeholder="https://github.com/yourname"></div>
+<div class="form-group"><label>LinkedIn</label><input v-model="config.social_linkedin" placeholder="https://linkedin.com/in/yourname"></div>
+<div class="form-group"><label>微信 (微信号)</label><input v-model="config.social_wechat" placeholder="wechat_id"></div>
+<div class="form-group"><label>邮箱</label><input v-model="config.social_email" placeholder="hello@example.com"></div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><h3>联系区信息</h3></div>
+<div class="form-group"><textarea v-model="config.contact_message" rows="3" placeholder="联系区提示信息"></textarea></div>
+</div>
+</template>
+</main>
+</div>
+
+<div class="modal-overlay" v-if="showModal" @click.self="showModal=false">
+<div class="modal-content">
+<h2>{{ editingItem.id ? '编辑条目' : '添加条目' }}</h2>
+<div class="form-group">
+<label>所属区块</label>
+<select v-model="editingItem.section_key">
+<option v-for="opt in sectionOptions" :value="opt.key">{{ opt.icon }} {{ opt.label }}</option>
+</select>
+</div>
+<div class="form-group"><label>标题</label><input v-model="editingItem.title" placeholder="如：高级全栈工程师"></div>
+<div class="form-grid">
+<div class="form-group"><label>公司/学校名</label><input v-model="editingItem.sub_title" placeholder="如：某科技公司"></div>
+<div class="form-group"><label>时间范围</label><input v-model="editingItem.date_range" placeholder="如：2023 - 至今"></div>
+</div>
+<div class="form-group"><label>详细描述 (支持换行)</label><textarea v-model="editingItem.description" rows="4" placeholder="每行一个要点..."></textarea></div>
+<div class="form-group"><label>标签 (JSON数组)</label><input v-model="editingItem.tags" placeholder='["React","Python"]'></div>
+<div class="form-group"><label>链接 (可选)</label><input v-model="editingItem.link" placeholder="https://..."></div>
+<div class="modal-actions">
+<button class="btn btn-ghost" @click="showModal=false">取消</button>
+<button class="btn btn-primary" @click="submitItem">{{ editingItem.id ? '更新' : '添加' }}</button>
+</div>
+</div>
+</div>
+
+<div class="toast success" v-if="toast.show" @click="toast.show=false">{{ toast.msg }}</div>
+</div>
+
+<script>
+const {createApp,ref,reactive,computed,onMounted} = Vue;
+
+createApp({
+setup(){
+const tab=ref('basic');
+const itemFilter=ref('experience');
+const sections=ref([]);
+const config=reactive({});
+const showModal=ref(false);
+const editingItem=reactive({id:null,section_key:'',title:'',sub_title:'',date_range:'',description:'',tags:'[]',link:''});
+const toast=reactive({show:false,msg:''});
+const sectionIcons={'hero':'🏠','about':'👤','experience':'💼','skills':'🛠️','projects':'🚀','education':'🎓','contact':'📬'};
+const sectionOptions=[
+{key:'experience',icon:'💼',label:'工作经历'},
+{key:'skills',icon:'🛠️',label:'专业技能'},
+{key:'projects',icon:'🚀',label:'项目作品'},
+{key:'education',icon:'🎓',label:'教育背景'}
+];
+
+const filteredItems=computed(()=>{
+for(const sec of sections.value){
+if(sec.key===itemFilter.value) return sec.items;
+}
+return [];
+});
+
+function showToast(msg){toast.msg=msg;toast.show=true;setTimeout(()=>toast.show=false,3000);}
+function parseTags(t){try{return JSON.parse(t)}catch{return[]}}
+
+async function loadData(){
+try{
+const [cr,sr]=await Promise.all([fetch('/api/admin/config'),fetch('/api/admin/sections')]);
+const cd=await cr.json();
+Object.keys(cd).forEach(k=>{config[k]=cd[k].value});
+sections.value=await sr.json();
+}catch(e){console.error(e);showToast('加载数据失败')}
+}
+
+async function saveConfig(){
+try{
+const body={};
+Object.keys(config).forEach(k=>{body[k]=config[k]});
+await fetch('/api/admin/config',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+showToast('配置已保存 ✓');
+}catch(e){showToast('保存失败')}
+}
+
+async function saveSections(){
+try{
+for(const sec of sections.value){
+await fetch('/api/admin/section/'+sec.key,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:sec.title,subtitle:sec.subtitle,is_visible:sec.is_visible})});
+}
+showToast('区块已保存 ✓');
+}catch(e){showToast('保存失败')}
+}
+
+function openAddItem(){
+Object.assign(editingItem,{id:null,section_key:itemFilter.value,title:'',sub_title:'',date_range:'',description:'',tags:'[]',link:''});
+showModal.value=true;
+}
+
+function editItem(item){
+Object.assign(editingItem,{
+id:item.id,
+section_key:item.section_key,
+title:item.title||'',
+sub_title:item.sub_title||'',
+date_range:item.date_range||'',
+description:item.description||'',
+tags:item.tags||'[]',
+link:item.link||''
+});
+showModal.value=true;
+}
+
+async function submitItem(){
+const data={section_key:editingItem.section_key,title:editingItem.title,sub_title:editingItem.sub_title,date_range:editingItem.date_range,description:editingItem.description,tags:editingItem.tags,link:editingItem.link};
+try{
+if(editingItem.id){
+await fetch('/api/admin/item/'+editingItem.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+}else{
+await fetch('/api/admin/item',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+}
+showToast('条目已保存 ✓');
+showModal.value=false;
+loadData();
+}catch(e){showToast('保存失败')}
+}
+
+async function deleteItem(id){
+if(!confirm('确定删除？')) return;
+try{
+await fetch('/api/admin/item/'+id,{method:'DELETE'});
+showToast('已删除');
+loadData();
+}catch(e){showToast('删除失败')}
+}
+
+onMounted(loadData);
+
+return{tab,itemFilter,sections,config,showModal,editingItem,toast,sectionIcons,sectionOptions,filteredItems,parseTags,saveConfig,saveSections,openAddItem,editItem,submitItem,deleteItem,showToast};
+}
+}).mount('#app');
+</script>
+</body>
+</html>
